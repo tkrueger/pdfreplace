@@ -47,10 +47,11 @@
   (println msg)
   (System/exit status))
 
+
 (defn -main [& args]
   (let [{:keys [source target replacements options exit-message ok?]} (validate-args args)]
     (when exit-message
       (exit (if ok? 0 1) exit-message))
-    (if (:verbose options)
+    (when (:verbose options)
       (println "copying" source "to" target "and applying replacements" replacements))
     (textrep/replace-text source target replacements)))
