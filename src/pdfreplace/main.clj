@@ -1,7 +1,8 @@
 (ns pdfreplace.main
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
-            [pdfreplace.regex :as textrep]))
+            [pdfreplace.regex :as textrep])
+  (:gen-class))
 
 (def cli-options
   [["-v" "--verbose"]
