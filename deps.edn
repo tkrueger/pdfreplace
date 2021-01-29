@@ -3,6 +3,9 @@
         org.clojure/tools.cli {:mvn/version "1.0.194"}
         pdfboxing/pdfboxing {:mvn/version "0.1.14"}}
  :aliases {:main {:main-opts ["-m" "pdfreplace.main"]}
+           :reveal {:extra-deps {vlaaad/reveal {:mvn/version "1.2.185"}}
+                    :main-opts  ["-m" "nrepl.cmdline"
+                                 "--middleware" "[vlaaad.reveal.nrepl/middleware,cider.nrepl/cider-middleware]"]}
            :depstar {:replace-deps ; tool usage is new in 2.x
                      {seancorfield/depstar {:mvn/version "2.0.165"}}
                      :ns-default hf.depstar
