@@ -6,4 +6,7 @@
            :depstar {:replace-deps ; tool usage is new in 2.x
                      {seancorfield/depstar {:mvn/version "2.0.165"}}
                      :ns-default hf.depstar
-                     :exec-args {}}}}
+                     :exec-args {}}
+           :test {:extra-paths ["test"]
+                  :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}
+                  :main-opts ["-m" "kaocha.runner"]}}}
