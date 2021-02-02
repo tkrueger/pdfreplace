@@ -23,7 +23,8 @@
                   "target/lorem_ipsum_replaced.pdf"
                   {#"Lorem" "foo"})
     (let [text (pdftext/extract "target/lorem_ipsum_replaced.pdf")]
-      ; obviously, we'd want to see foo in there, but for now, expected behavior
-      ; is to fail in this...
-      (is (not (string/includes? text "foo")))
-      (is (string/includes? text "Lorem")))))
+      (is (string/includes? text "foo") "replaces most occurrences")
+
+      ; TODO this is NOT what is wanted
+      (is (string/includes? text "Lorem") "does not find text spanning multiple COSArrays"))))
+

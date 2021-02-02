@@ -1,7 +1,8 @@
 (ns pdfreplace.regex
   (:require [pdfboxing.common :as common]
             [clojure.string :as string])
-  (:import [org.apache.pdfbox.cos COSArray COSString COSName]
+  (:import [org.apache.pdfbox.contentstream.operator Operator]
+           [org.apache.pdfbox.cos COSArray COSString COSName]
            [org.apache.pdfbox.pdmodel PDDocument]
            [org.apache.pdfbox.pdmodel.common PDStream]
            [org.apache.pdfbox.pdfparser PDFStreamParser]
@@ -17,8 +18,8 @@
     (.getTokens parser)))
 
 (defn into-cosarray [s]
-  (let [cos (COSArray.)]
-    (map #(.add cos %) s)))
+  (doto (COSArray.)
+    (.addAll s)))
 
 (defn replace-all
   "Given a string and a map of regexes to replacement strings, applies
@@ -29,11 +30,31 @@
             (string/replace t search replace))
           text
           replacements))
+(defn extract-text
+  "given a COSArray, returns the contained text, filtering out positional
+   arguments."
+  [arr]
+  (->> arr
+       .toList
+       (filter #(instance? COSString %))
+       (map #(.getString %))
+       clojure.string/join))
+
+; TODO combine text, apply regex, then spread replaced text across int+string combinations to keep formatting
+(defn replace-in-array
+  "Tries to replace text in COSArrays as given in `replacements`. Combines text spanning multiple COSObjects,
+   applies regex. If regex matches, a new COSArray with a re-constructed string with replacements applied
+   is given back. If regex doesn't match, returns COSArray unchanged."
+  [arr replacements]
+  (let [text (extract-text arr)
+        processed (replace-all text replacements)]
+    (if (= processed text)
+      arr
+      (into-cosarray [(COSString. processed)]))))
 
 (defn -replace-fn [token replacements]
-  (comment (instance? COSArray token) (doto token (.clear)
-                                            (.addAll  (into-cosarray (map #(-replace-fn % replacements) (.toList token))))))
   (cond
+    (instance? COSArray token) (replace-in-array token replacements)
     (instance? COSString token) (COSString. (replace-all (.getString token) replacements))
     :else token))
 
