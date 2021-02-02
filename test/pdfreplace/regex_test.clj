@@ -21,8 +21,9 @@
   (testing "has trouble with other doc formats"
     (replace-text "test/lorem_ipsum.pdf"
                   "target/lorem_ipsum_replaced.pdf"
-                  {#"lorem" "foo"})
+                  {#"Lorem" "foo"})
     (let [text (pdftext/extract "target/lorem_ipsum_replaced.pdf")]
       ; obviously, we'd want to see foo in there, but for now, expected behavior
       ; is to fail in this...
-      (is (not (string/includes? text "foo"))))))
+      (is (not (string/includes? text "foo")))
+      (is (string/includes? text "Lorem")))))

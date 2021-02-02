@@ -32,4 +32,4 @@ No fancy machine learning in here, just plain old regexes. On the other side, th
 
 Also, PDF is weird, and there's no guarantee that the text you're loocking for doesn't have some placement token in between. So, if your regex doesn't catch what you want to change, try to look for smaller texts. The tool doesn't try to combine texts by filtering out placements. This would be easy to do. I didn't need it for my use case, though, so didn't implement it.
 
-Bear in mind that this has been created for a specific set of generated PDFs. I haven't spent much time investigating others, but there seem to be a lot of ways to spread text across a pdf, and other sources may not work. The approach might still help you on your way though.
+Bear in mind that this has been created for a specific set of generated PDFs. I haven't spent much time investigating others, but there seem to be a lot of ways to spread text across a pdf, and other sources may not find text to replace. The approach might still help you on your way though.

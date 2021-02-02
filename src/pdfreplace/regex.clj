@@ -31,9 +31,9 @@
           replacements))
 
 (defn -replace-fn [token replacements]
+  (comment (instance? COSArray token) (doto token (.clear)
+                                            (.addAll  (into-cosarray (map #(-replace-fn % replacements) (.toList token))))))
   (cond
-    (instance? COSArray token) (doto token (.clear)
-                                     (.addAll  (into-cosarray (map #(-replace-fn % replacements) (.toList token)))))
     (instance? COSString token) (COSString. (replace-all (.getString token) replacements))
     :else token))
 
