@@ -11,5 +11,4 @@
                      :ns-default hf.depstar
                      :exec-args {}}
            :test {:extra-paths ["test"]
-                  :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}
-                  :main-opts ["-m" "kaocha.runner"]}}}
+                  :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}}}}
