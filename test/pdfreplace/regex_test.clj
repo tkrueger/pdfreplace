@@ -13,18 +13,13 @@
       (is (not (string/includes? text "Depotabrechnung")))
       (is (string/includes? text "Ersatztext"))))
 
-  ; in this case, the array contains a letter or two, followed by an int
-  ; defining the position (see page 331 of 
-  ; https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/pdf_reference_archives/PDFReference.pdf)).
-  ; To detect, we can extract the text per array, but replacing it would be
-  ; either more complicated or ditch the positioning information. 
-  (testing "has trouble with other doc formats"
+  (testing "has trouble with text spanning COSArrays"
     (replace-text "test/lorem_ipsum.pdf"
                   "target/lorem_ipsum_replaced.pdf"
                   {#"Lorem" "foo"})
     (let [text (pdftext/extract "target/lorem_ipsum_replaced.pdf")]
       (is (string/includes? text "foo") "replaces most occurrences")
 
-      ; TODO this is NOT what is wanted
-      (is (string/includes? text "Lorem") "does not find text spanning multiple COSArrays"))))
-
+      ; TODO this is NOT what is wanted, one Lorem spans COSArrays, and isn't found
+      (is (string/includes? text "Lorem") "does not find text spanning multiple COSArrays")
+      (is (= 2 (count (string/split text #"Lorem"))) "but finds all other occurences"))))

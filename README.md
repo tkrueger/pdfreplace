@@ -28,8 +28,8 @@ Unfortunately, it looks like graalvm doesn't like pdfbox used in [pdfboxing](htt
 
 ## Caveats
 
-No fancy machine learning in here, just plain old regexes. On the other side, the `replacements` argument is read and interpreted by clojure, so some hacking may be possible, if required.
+No fancy magic in here, just plain old regexes. On the other side, the `replacements` argument is read and interpreted by clojure, so some hacking may be possible, if required.
 
-Also, PDF is weird, and there's no guarantee that the text you're loocking for doesn't have some placement token in between. So, if your regex doesn't catch what you want to change, try to look for smaller texts. The tool doesn't try to combine texts by filtering out placements. This would be easy to do. I didn't need it for my use case, though, so didn't implement it.
+Also, PDF is complicated, and there's no guarantee that the text you're locking for doesn't have some placement token in between. So, if your regex doesn't catch what you want to change, try to look for smaller texts. The tool will only miss texts that span multiple COSArrays. This is done by sifting out character placement information in between texts inside a COSArray. This lose a bit of layout, which probably wouldn't fit your replacement anyway. The results were nice enough for me.
 
 Bear in mind that this has been created for a specific set of generated PDFs. I haven't spent much time investigating others, but there seem to be a lot of ways to spread text across a pdf, and other sources may not find text to replace. The approach might still help you on your way though.
