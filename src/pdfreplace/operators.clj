@@ -1,11 +1,12 @@
 (ns pdfreplace.operators
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [pdfreplace.config :refer [min-font-size]])
   (:import [org.apache.pdfbox.cos COSString COSName COSInteger COSFloat COSArray]
            [org.apache.pdfbox.contentstream.operator Operator]))
 
 (defn cos-op [name] (Operator/getOperator name))
 (defn cos-string [text] (COSString. text))
-(defn cos-int [i] (COSInteger/get i))
+(defn cos-int [i] (COSInteger/get (long i)))
 (defn cos-name [n] (COSName/getPDFName n))
 (defn cos-float [f] (COSFloat/get (str f)))
 (defn into-cosarray [s]
@@ -52,16 +53,23 @@
   (reduce (fn [acc op]
             (if (and (show-text-op? (:operator op))
                      (contains? op :replaced))
-              (do
-                (let [font (:last-font-name op)
-                      encoded (encoder font (:replaced op))]
-                  (tap> ["replcaing" encoded])
-                  (if (instance? COSArray (first (:args op)))
-                    (concat acc [(into-cosarray [(COSString. encoded)]) (:operator op)])
-                    (concat acc [(COSString. encoded) (:operator op)])
-                    )))
-              (do
-                (concat acc (flatten [(:args op) (:operator op)])))))
+              (let [font (:last-font-name op)
+                    old-size (or (:last-font-size op) 0)
+                    size (max (min-font-size) old-size)
+                    [used-font encoded] (encoder [font (:replaced op)])
+                    wrap? (not (= font used-font))]
+                (if (instance? COSArray (first (:args op)))
+                  (if (and wrap? size)
+                    (concat acc [(cos-name used-font) (cos-int size) (cos-op "Tf")
+                                 (into-cosarray [(COSString. encoded)]) (:operator op)
+                                 (cos-name font) (cos-int old-size) (cos-op "Tf")])
+                    (concat acc [(into-cosarray [(COSString. encoded)]) (:operator op)]))
+                  (if (and wrap? size)
+                    (concat acc [(cos-name used-font) (cos-int size) (cos-op "Tf")
+                                 (COSString. encoded) (:operator op)
+                                 (cos-name font) (cos-int old-size) (cos-op "Tf")])
+                    (concat acc [(COSString. encoded) (:operator op)]))))
+              (concat acc (flatten [(:args op) (:operator op)]))))
           []
           ops))
 

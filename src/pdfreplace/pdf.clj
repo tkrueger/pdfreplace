@@ -5,7 +5,9 @@
                                      with-text
                                      encoder
                                      with-unicode
-                                     replace-all]])
+                                     replace-all
+                                     encodable-fonts
+                                     add-font]])
   (:import [org.apache.pdfbox.cos COSName]
            [org.apache.pdfbox.pdfparser PDFStreamParser]
            [org.apache.pdfbox.pdfwriter ContentStreamWriter]
@@ -54,18 +56,23 @@
     (.close target-pdf)
     target-pdf))
 
-(defn process-page 
-  
+(defn process-page
   [doc page proc-fn]
-  (let [fonts (fonts page)
+  (let [page-fonts (fonts page)
+        page-fonts (if (empty? (encodable-fonts page-fonts))
+                     (do
+                       (println "adding an encodable font")
+                       (add-font page)
+                       (fonts page))
+                     page-fonts)
         page-ops (-> (parse-tokens page)
                      (ops/parse-operators)
                      (with-font-info)
                      (with-text)
-                     (#(with-unicode fonts %)))
+                     (#(with-unicode page-fonts %)))
         page-ops (map proc-fn page-ops)
         stream (PDStream. doc)
-        tokenized (ops/tokenize (encoder fonts) page-ops)]
+        tokenized (ops/tokenize (encoder page-fonts) page-ops)]
     (with-open [os (.createOutputStream stream COSName/FLATE_DECODE)]
       (let [writer (ContentStreamWriter. os)]
         (.writeTokens writer tokenized)

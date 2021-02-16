@@ -1,12 +1,15 @@
 (ns pdfreplace.main
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
+            [pdfreplace.config :refer [set-config! verbose?]]
             [pdfreplace.regex :as textrep])
   (:gen-class))
 
 (def cli-options
   [["-v" "--verbose"]
-   ["-h" "--help"]])
+   ["-h" "--help"]
+   ["-mfs" "--min-font-size SIZE" "Minimum font size. Defaults to 7."
+    :parse-fn #(Integer/parseInt %) :default 7]])
 
 (defn usage [options-summary]
   (->> ["Copies a pdf source file to a target, replacing each occurrance "
@@ -47,19 +50,14 @@
   indicating the action the program should take and the options provided."
   [args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
-    (cond
-      (:help options) ; help => exit OK with usage summary
-      {:exit-message (usage summary) :ok? true}
-      errors ; errors => exit with description of errors
-      {:exit-message (error-msg errors)}
-      ;; custom validation on arguments
-      (= 3 (count arguments))
-      {:source (first arguments)
-       :target (second arguments)
-       :replacements (parse-replacements (nth arguments 2))
-       :options options}
-      :else ; failed custom validation => exit with usage summary
-      {:exit-message (usage summary)})))
+    (set-config! options)
+    (cond (:help options) {:exit-message (usage summary) :ok? true}
+          errors {:exit-message (error-msg errors)}
+          (= 3 (count arguments)) {:source (first arguments)
+                                   :target (second arguments)
+                                   :replacements (parse-replacements (nth arguments 2))
+                                   :options options}
+          :else {:exit-message (usage summary)})))
 
 (defn exit [status msg]
   (println msg)
@@ -70,6 +68,6 @@
   (let [{:keys [source target replacements options exit-message ok?]} (validate-args args)]
     (when exit-message
       (exit (if ok? 0 1) exit-message))
-    (when (:verbose options)
+    (when (verbose?)
       (println "copying" source "to" target "and applying replacements" replacements))
     (textrep/replace-text source target replacements)))

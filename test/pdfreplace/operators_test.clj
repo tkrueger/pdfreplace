@@ -8,7 +8,6 @@
              [pdfreplace.text :refer [with-text with-font-info 
                                        with-unicode
                                        with-replacement]]
-             [pdfreplace.test-utils :refer [remove-equals]]
              [clojure.test :refer [deftest testing is]]
              [pdfreplace.pdf :refer [page fonts parse-tokens]]))
 
@@ -40,15 +39,38 @@
      :fonts fonts}))
 
 (deftest tokenize-test
-  (comment
-    (testing "token roundtrip"
-      (let [tokens [(cos-op "BT")
-                    (cos-name "F1") (cos-int 24) (cos-op "Tf")
-                    (cos-int 1) (cos-int 0) (cos-int 0) (cos-int 1) (cos-float 263.69) (cos-float 697.18) (cos-op "Tm")]
-            ops (parse-operators tokens)
-            tokenized (tokenize (fn [_ x] x) ops)]
-        (is (= tokens
-               tokenized)))))
+  (testing "when font can encode, uses that"
+    (let [encoder (fn [[font text]] [font "replaced text"])
+          ops [{:operator (cos-op "Tj") :replaced "Some text" :last-font-name "F0" :last-font-size 1}]]
+      (is (= [(cos-string "replaced text") (cos-op "Tj")]
+             (tokenize encoder ops)))))
+
+  (testing "when different font used for encoding, selects font"
+    (let [encoder (fn [[font text]] ["F10" "replaced text"])
+          ops [{:operator (cos-op "Tj") :replaced "Some text" :last-font-name "F0" :last-font-size 12}]
+          tokenized (tokenize encoder ops)]
+      (is (= [(cos-name "F10") (cos-int 12) (cos-op "Tf")
+              (cos-string "replaced text") (cos-op "Tj")
+              (cos-name "F0") (cos-int 12) (cos-op "Tf")]
+             tokenized))))
+
+  (testing "uses minimum font size"
+    (let [encoder (fn [[font text]] ["F10" "replaced text"])
+          ops [{:operator (cos-op "Tj") :replaced "Some text" :last-font-name "F0" :last-font-size 1}]
+          tokenized (tokenize encoder ops)]
+      (is (= [(cos-name "F10") (cos-int 7) (cos-op "Tf")
+              (cos-string "replaced text") (cos-op "Tj")
+              (cos-name "F0") (cos-int 1) (cos-op "Tf")]
+             tokenized))))
+
+  (testing "token roundtrip"
+    (let [tokens [(cos-op "BT")
+                  (cos-name "F1") (cos-int 24) (cos-op "Tf")
+                  (cos-int 1) (cos-int 0) (cos-int 0) (cos-int 1) (cos-float 263.69) (cos-float 697.18) (cos-op "Tm")]
+          ops (parse-operators tokens)
+          tokenized (tokenize identity ops)]
+      (is (= tokens
+             tokenized))))
 
   (testing "token roundtrip on file"
     (let [{:keys [fonts tokens]} (lorem-ipsum-data)
@@ -57,15 +79,16 @@
                   (with-text)
                   (#(with-unicode fonts %))
                   (with-replacement #"Lorem" "Foo"))
-          tokenized (tokenize (fn [_ x] x) ops)
-          ]
+          tokenized (tokenize identity ops)]
       (is (= (count tokens) (count tokenized)))))
 
   (testing "uses encoder"
-    (let [tokenized (tokenize (fn [_ x] "encoded")
+    (let [tokenized (tokenize (fn [[f x]] [f "encoded"])
                               [{:operator (cos-op "Tj")
                                 :replaced "foo"
-                                :args [(cos-string "foo")]}])]
+                                :args [(cos-string "foo")]
+                                :last-font-name "F0"
+                                :last-font-size 12}])]
       (is (= "encoded"
              (-> tokenized
                  first
