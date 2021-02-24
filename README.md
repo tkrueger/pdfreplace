@@ -16,6 +16,30 @@ After cloning, either use
 clj -Mmain
 ```
 
+```
+Copies a pdf source file to a target, replacing each occurrence
+of any of the given regexes with their respective replacement strings.
+
+Usage: pdfreplace [options] source target replacement-map
+
+  source       - source pdf file
+  target       - file to write the results to
+  replacements - either a parseable clojure map or a filename containing one.
+                 Map is using regex (or strings) as keys (see clojure.string/replace)
+                 and strings as values.
+Example: pdfreplace filea fileb '{#"foo" "bar"}'
+         Uses replacements as parseable Clojure code. Will replace all 'foo's with 'bar'.
+
+Example: pdfreplace filea fileb replacements.edn
+         Uses replacements loaded from file 'replacements.edn'.
+
+Options:
+  -v, --verbose
+  -h, --help
+  -mfs, --min-font-size SIZE  7  Minimum font size. Defaults to 7.
+
+```
+
 or build an uberjar and use that:
 
 ```bash

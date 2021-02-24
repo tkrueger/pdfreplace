@@ -12,7 +12,7 @@
     :parse-fn #(Integer/parseInt %) :default 7]])
 
 (defn usage [options-summary]
-  (->> ["Copies a pdf source file to a target, replacing each occurrance "
+  (->> ["Copies a pdf source file to a target, replacing each occurrence "
         "of any of the given regexes with their respective replacement strings."
         ""
         "Usage: pdfreplace [options] source target replacement-map"
