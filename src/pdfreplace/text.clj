@@ -51,7 +51,7 @@
 (defn add-font
   "Adds a font to the page's resources. Will create a default font if none given.
      Returns assigned fontname."
-  ([page] (add-font page (PDType1Font/HELVETICA_BOLD)))
+  ([page] (add-font page (PDType1Font/HELVETICA)))
   ([page font] (let [resources (.getResources page)]
                  (.add resources font))))
 
