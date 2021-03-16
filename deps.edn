@@ -11,4 +11,6 @@
                      :ns-default hf.depstar
                      :exec-args {}}
            :test {:extra-paths ["test"]
-                  :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}}}}
+                  :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}}
+           :uberjar  {:extra-deps {uberdeps/uberdeps {:mvn/version "0.1.4"}}
+                      :main-opts  ["-m" "uberdeps.uberjar"]}}}
