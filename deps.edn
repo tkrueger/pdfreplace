@@ -9,8 +9,9 @@
            :depstar {:replace-deps ; tool usage is new in 2.x
                      {seancorfield/depstar {:mvn/version "2.0.165"}}
                      :ns-default hf.depstar
-                     :exec-args {}}
+                     :exec-args {:aot true :main-class pdfreplace.main}}
            :test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}}
-           :uberjar  {:extra-deps {uberdeps/uberdeps {:mvn/version "0.1.4"}}
-                      :main-opts  ["-m" "uberdeps.uberjar"]}}}
+           :uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.193"}}
+                     :exec-fn hf.depstar/uberjar
+                     :exec-args {:aot true :main-class pdfreplace.main :jar target/pdfreplace.jar}}}}

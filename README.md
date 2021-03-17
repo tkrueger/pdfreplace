@@ -43,9 +43,8 @@ Options:
 or build an uberjar and use that:
 
 ```bash
-clj -Spom
-clj -X:depstar uberjar :jar pdfreplace.jar :aot true :main-class pdfreplace.main
-java -jar pdfreplace.jar
+clj -X:uberjar
+java -jar target/pdfreplace.jar
 ``` 
 
 Unfortunately, it looks like graalvm doesn't like pdfbox used in [pdfboxing](https://github.com/dotemacs/pdfboxing) referencing AWT classes. At least, building a native image didn't work.

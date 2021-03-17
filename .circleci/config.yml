@@ -35,7 +35,7 @@ jobs:
           keys:
             - pdfreplace-{{ checksum "deps.edn" }}
             - pdfreplace-
-      - run: clojure -M:uberjar
+      - run: clojure -X:uberjar
       - store_artifacts:
           path: target/pdfreplace.jar
           destination: pdfreplace.jar
