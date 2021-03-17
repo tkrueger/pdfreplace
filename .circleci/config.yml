@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     working_directory: ~/pdfreplace
     docker:
       - image:  circleci/clojure:tools-deps-buster
@@ -21,7 +21,31 @@ jobs:
           paths:
             - ~/.m2
           key: pdfreplace-{{ checksum "deps.edn" }}
+
+  uberjar:
+    working_directory: ~/pdfreplace
+    docker:
+      - image:  circleci/clojure:tools-deps-buster
+        auth:
+          username: thork
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pdfreplace-{{ checksum "deps.edn" }}
+            - pdfreplace-
       - run: clojure -M:uberjar
       - store_artifacts:
           path: target/pdfreplace.jar
-          destination: uberjar
+          destination: pdfreplace.jar
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: pdfreplace-{{ checksum "deps.edn" }}
+workflows:
+  version: 2
+  test_and_bundle:
+    jobs:
+      - test
+      - uberjar
