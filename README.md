@@ -2,7 +2,7 @@
 
 A tiny tool able to replace text in pdf documents.
 
-[![tkrueger](https://circleci.com/gh/tkrueger/pdfreplace.svg?style=svg)](https://github.com/tkrueger/pdfreplace)
+[![tkrueger](https://circleci.com/gh/tkrueger/pdfreplace.svg?style=shield)](https://github.com/tkrueger/pdfreplace)
 
 ## Use Case
 
