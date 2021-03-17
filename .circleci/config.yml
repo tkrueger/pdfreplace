@@ -48,4 +48,6 @@ workflows:
   test_and_bundle:
     jobs:
       - test
-      - uberjar
+      - uberjar:
+          requires:
+            - test
