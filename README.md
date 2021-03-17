@@ -2,6 +2,8 @@
 
 A tiny tool able to replace text in pdf documents.
 
+[![tkrueger](https://circleci.com/gh/tkrueger/pdfreplace.svg?style=svg)](https://github.com/tkrueger/pdfreplace)
+
 ## Use Case
 
 This was born out of a desire to anonymize documents in order to use them as test files in another project. 
